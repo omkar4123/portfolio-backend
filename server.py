@@ -117,7 +117,9 @@ async def submit_contact_form(contact: ContactSubmissionCreate):
 
         await db.contact_submissions.insert_one(contact_dict)
 
-        email_result = email_service.send_contact_notification(contact.model_dump())
+        #email_result = email_service.send_contact_notification(contact.model_dump())
+
+        print("Contact saved successfully")
 
         return ContactResponse(
             status="success",
