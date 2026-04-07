@@ -1,7 +1,7 @@
 from fastapi import FastAPI, APIRouter, HTTPException, status, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
-from starlette.middleware.cors import CORSMiddleware
+from fastapi.middleware.cors import CORSMiddleware   # ✅ FIXED IMPORT
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
@@ -38,6 +38,15 @@ db = client[db_name]
 # FastAPI app
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
+
+# ✅ CORS FIX (VERY IMPORTANT)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # allow all (fixes your issue instantly)
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Security
 security = HTTPBearer()
@@ -171,15 +180,6 @@ async def update_submission_status(
 # Include router
 app.include_router(api_router)
 
-# CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 
 # Shutdown
 @app.on_event("shutdown")
@@ -187,7 +187,7 @@ async def shutdown_db():
     client.close()
 
 
-# 🚀 IMPORTANT FIX (DO NOT REMOVE)
+# 🚀 IMPORTANT
 import uvicorn
 
 if __name__ == "__main__":
